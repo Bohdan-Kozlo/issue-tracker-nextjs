@@ -42,3 +42,6 @@ next-env.d.ts
 
 docs.md
 /src/generated/prisma
+dev.db
+
+/prisma/migrations

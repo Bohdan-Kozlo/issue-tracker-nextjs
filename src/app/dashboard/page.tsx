@@ -3,6 +3,7 @@ import PageLayout from "@/components/PageLayout";
 import GradientHeading from "@/components/GradientHeading";
 import StatusFilterButtons from "@/components/StatusFilterButtons";
 import IssueCard from "@/components/IssueCard";
+import delay from "@/lib/delay";
 
 // Mock data for demonstration
 const mockIssues = [
@@ -48,7 +49,9 @@ const mockIssues = [
   },
 ];
 
-export default function Dashboard() {
+export default async function Dashboard() {
+  await delay(500);
+
   return (
     <PageLayout>
       <GradientHeading
