@@ -1,9 +1,6 @@
 "use client";
 
-interface StatusFilterButtonsProps {
-  activeFilter: string;
-  onFilterChange: (filter: string) => void;
-}
+import { useState } from "react";
 
 const filters = [
   { key: "all", label: "All" },
@@ -12,17 +9,16 @@ const filters = [
   { key: "closed", label: "Closed" },
 ];
 
-export default function StatusFilterButtons({
-  activeFilter,
-  onFilterChange,
-}: StatusFilterButtonsProps) {
+export default function StatusFilterButtons() {
+  const [activeFilter, setActiveFilter] = useState("all");
+
   return (
     <div className="mb-8">
       <div className="flex flex-wrap gap-3">
         {filters.map((filter) => (
           <button
             key={filter.key}
-            onClick={() => onFilterChange(filter.key)}
+            onClick={() => setActiveFilter(filter.key)}
             className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
               activeFilter === filter.key
                 ? "bg-[#ff6600] text-white"
