@@ -19,7 +19,7 @@ export default function AuthLayout({
   footerLinkHref,
 }: AuthLayoutProps) {
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-gradient-to-br from-slate-900 via-gray-900 to-black">
+    <main className="min-h-screen flex items-center justify-center my-10 px-4 relative overflow-hidden bg-gradient-to-br from-slate-900 via-gray-900 to-black">
       {/* Background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f23]" />
