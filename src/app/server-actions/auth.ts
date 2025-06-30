@@ -8,7 +8,9 @@ import {
   verifyPassword,
   createSession,
   deleteSession,
+  getSession,
 } from "@/lib/auth";
+import { getUserById } from "@/data/user";
 
 export async function register(formData: FormData): Promise<ActionResponse> {
   try {
@@ -96,4 +98,13 @@ export async function login(formData: FormData): Promise<ActionResponse> {
 
 export async function logout(): Promise<void> {
   await deleteSession();
+}
+
+export async function getCurrentUser() {
+  const session = await getSession();
+  if (!session?.userId) {
+    return null;
+  }
+
+  return getUserById(session.userId);
 }

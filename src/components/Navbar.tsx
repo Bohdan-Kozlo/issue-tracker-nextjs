@@ -1,10 +1,21 @@
 "use client";
 
+import { getCurrentUser } from "@/app/server-actions/auth";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import LogoutButton from "./LogoutButton";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<{ name: string } | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const currentUser = await getCurrentUser();
+      if (currentUser) setUser({ name: currentUser.name });
+    };
+    fetchUser();
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1a1a2e]/80 backdrop-blur-md border-b border-white/10">
@@ -60,20 +71,29 @@ export default function Navbar() {
             </Link>
           </div>
 
-          {/* Auth buttons */}
+          {/* Auth buttons / User info */}
           <div className="hidden md:flex items-center space-x-4">
-            <Link
-              href="/login"
-              className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/register"
-              className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#ff6600] to-[#ffae42] hover:from-[#ffae42] hover:to-[#ff6600] text-white font-medium transition-all duration-300 transform hover:scale-105"
-            >
-              Sign Up
-            </Link>
+            {user ? (
+              <>
+                <span className="text-gray-300 font-medium">{user.name}</span>
+                <LogoutButton />
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-gray-300 hover:text-white transition-colors duration-200 font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#ff6600] to-[#ffae42] hover:from-[#ffae42] hover:to-[#ff6600] text-white font-medium transition-all duration-300 transform hover:scale-105"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}

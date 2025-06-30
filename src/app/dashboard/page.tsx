@@ -3,54 +3,10 @@ import PageLayout from "@/components/PageLayout";
 import GradientHeading from "@/components/GradientHeading";
 import StatusFilterButtons from "@/components/StatusFilterButtons";
 import IssueCard from "@/components/IssueCard";
-import delay from "@/lib/delay";
-
-// Mock data for demonstration
-const mockIssues = [
-  {
-    id: 1,
-    title: "Fix navigation bug in mobile view",
-    status: "Open" as const,
-    priority: "High" as const,
-    createdAt: "2 hours ago",
-    commentsCount: 3,
-  },
-  {
-    id: 2,
-    title: "Implement user authentication system",
-    status: "In Progress" as const,
-    priority: "Medium" as const,
-    createdAt: "1 day ago",
-    commentsCount: 7,
-  },
-  {
-    id: 3,
-    title: "Update documentation for API endpoints",
-    status: "Closed" as const,
-    priority: "Low" as const,
-    createdAt: "3 days ago",
-    commentsCount: 2,
-  },
-  {
-    id: 4,
-    title: "Optimize database queries for better performance",
-    status: "Open" as const,
-    priority: "High" as const,
-    createdAt: "5 hours ago",
-    commentsCount: 1,
-  },
-  {
-    id: 5,
-    title: "Add dark mode toggle functionality",
-    status: "In Progress" as const,
-    priority: "Medium" as const,
-    createdAt: "2 days ago",
-    commentsCount: 5,
-  },
-];
+import { getIssues } from "@/data/issue";
 
 export default async function Dashboard() {
-  await delay(500);
+  const issues = await getIssues();
 
   return (
     <PageLayout>
@@ -63,13 +19,13 @@ export default async function Dashboard() {
 
       {/* Issues Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {mockIssues.map((issue) => (
+        {issues.map((issue) => (
           <IssueCard key={issue.id} issue={issue} />
         ))}
       </div>
 
       {/* Empty state (if no issues) */}
-      {mockIssues.length === 0 && (
+      {issues.length === 0 && (
         <div className="text-center py-16">
           <div className="w-24 h-24 bg-gradient-to-br from-[#ff6600]/20 to-[#ffae42]/10 rounded-full mx-auto mb-6 flex items-center justify-center">
             <svg

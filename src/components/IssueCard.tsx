@@ -1,13 +1,5 @@
+import { Issue } from "@prisma/client";
 import Link from "next/link";
-
-interface Issue {
-  id: number;
-  title: string;
-  status: "Open" | "In Progress" | "Closed";
-  priority: "High" | "Medium" | "Low";
-  createdAt: string;
-  commentsCount: number;
-}
 
 interface IssueCardProps {
   issue: Issue;
@@ -98,7 +90,7 @@ export default function IssueCard({ issue }: IssueCardProps) {
 
       {/* Created date and comments */}
       <div className="flex items-center justify-between text-sm text-gray-400 mb-6">
-        <span>Created {issue.createdAt}</span>
+        {/* <span>Created {issue.createdAt}</span> */}
         <div className="flex items-center gap-1">
           <svg
             className="w-4 h-4"
@@ -113,7 +105,6 @@ export default function IssueCard({ issue }: IssueCardProps) {
               d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
             />
           </svg>
-          <span>{issue.commentsCount}</span>
         </div>
       </div>
 
