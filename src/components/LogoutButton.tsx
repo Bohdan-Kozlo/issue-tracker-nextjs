@@ -11,7 +11,7 @@ export default function LogoutButton() {
   const handleLogout = async () => {
     startTransition(async () => {
       await logout();
-      router.push("/");
+      router.refresh();
     });
   };
 

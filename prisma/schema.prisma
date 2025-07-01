@@ -18,6 +18,8 @@ model User {
   email    String    @unique
   name     String
   password String?
+  googleId String?   @unique
+  picture  String?
   issues   Issue[]
   comments Comment[]
 

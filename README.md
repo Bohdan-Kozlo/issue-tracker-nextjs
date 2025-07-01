@@ -18,6 +18,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Authentication Options
+
+This project supports two methods of authentication:
+
+- Email and password authentication
+- Google OAuth authentication
+
+For Google authentication setup, please refer to the [Google Authentication Setup Guide](./docs/google-auth-setup.md).
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More

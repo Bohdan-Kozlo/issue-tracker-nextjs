@@ -13,7 +13,10 @@ export const UserSchema = z.object({
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
-    .max(128, "Password must not exceed 128 characters"),
+    .max(128, "Password must not exceed 128 characters")
+    .optional(),
+  googleId: z.string().optional(),
+  picture: z.string().url("Invalid profile picture URL").optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -60,6 +63,10 @@ export const PasswordChangeSchema = z
     message: "Passwords don't match",
     path: ["confirmPassword"],
   });
+
+export const GoogleAuthSchema = z.object({
+  code: z.string().min(1, "Authorization code is required"),
+});
 
 export type User = z.infer<typeof UserSchema>;
 export type UserRegistration = z.infer<typeof UserRegistrationSchema>;
