@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const CommentSchema = z.object({
   id: z.string().uuid("Invalid comment ID format"),
-  content: z
+  text: z
     .string()
     .min(1, "Comment content is required")
     .max(2000, "Comment must not exceed 2000 characters")
@@ -19,10 +19,10 @@ export const CommentCreateSchema = CommentSchema.omit({
   updatedAt: true,
 });
 
-// Comment update schema (only content can be updated)
+// Comment update schema (only text can be updated)
 export const CommentUpdateSchema = z.object({
   id: z.string().uuid("Invalid comment ID format"),
-  content: z
+  text: z
     .string()
     .min(1, "Comment content is required")
     .max(2000, "Comment must not exceed 2000 characters")
@@ -33,8 +33,9 @@ export const CommentUpdateSchema = z.object({
 export const CommentWithAuthorSchema = CommentSchema.extend({
   author: z.object({
     id: z.string().uuid(),
-    username: z.string(),
+    name: z.string(),
     email: z.string().email(),
+    picture: z.string().optional(),
   }),
 });
 

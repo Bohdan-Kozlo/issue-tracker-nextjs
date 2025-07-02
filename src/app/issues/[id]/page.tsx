@@ -3,78 +3,44 @@ import PageLayout from "@/components/PageLayout";
 import BackButton from "@/components/BackButton";
 import Comment from "@/components/Comment";
 import Button from "@/components/Button";
-
-// Mock data for demonstration
-const mockIssue = {
-  id: 1,
-  title: "Fix navigation bug in mobile view",
-  description:
-    "The navigation menu doesn't work properly on mobile devices. When users tap the hamburger menu, it opens but clicking on menu items doesn't navigate to the correct pages. This issue affects user experience significantly on mobile platforms.",
-  status: "Open",
-  priority: "High",
-  assignedTo: "John Doe",
-  createdBy: "Jane Smith",
-  createdAt: "2024-01-15T10:30:00Z",
-  updatedAt: "2024-01-16T14:20:00Z",
-  labels: ["bug", "mobile", "navigation"],
-};
-
-const mockComments = [
-  {
-    id: 1,
-    author: "Jane Smith",
-    content:
-      "I've reproduced this issue on both iOS and Android devices. The problem seems to be related to the z-index of the menu overlay.",
-    createdAt: "2024-01-15T11:45:00Z",
-    avatar: "JS",
-  },
-  {
-    id: 2,
-    author: "Mike Johnson",
-    content:
-      "I can confirm this issue. It's affecting our mobile conversion rate. Should we prioritize this for the next sprint?",
-    createdAt: "2024-01-15T15:20:00Z",
-    avatar: "MJ",
-  },
-  {
-    id: 3,
-    author: "John Doe",
-    content:
-      "I'm working on a fix. Will have it ready for testing by tomorrow. The issue is in the mobile CSS media queries.",
-    createdAt: "2024-01-16T09:15:00Z",
-    avatar: "JD",
-  },
-];
+import DeleteIssueDialog from "@/components/DeleteIssueDialog";
+import ChangeStatusDialog from "@/components/ChangeStatusDialog";
+import { getIssueById } from "@/app/server-actions/issue";
+import { getCommentsByIssueId } from "@/app/server-actions/comment";
+import { handleCreateComment } from "@/app/server-actions/comment-actions";
+import { notFound } from "next/navigation";
 
 // Helper functions
 const getStatusStyles = (status: string) => {
-  switch (status) {
-    case "Open":
+  switch (status.toLowerCase()) {
+    case "open":
       return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-    case "In Progress":
+    case "in_progress":
+    case "in progress":
       return "bg-[#ff6600]/20 text-[#ffae42] border-[#ff6600]/30";
-    case "Closed":
+    case "closed":
       return "bg-green-500/20 text-green-400 border-green-500/30";
     default:
       return "bg-gray-500/20 text-gray-400 border-gray-500/30";
   }
 };
+
+// Helper functions from comment-actions.ts are imported above
 
 const getPriorityStyles = (priority: string) => {
-  switch (priority) {
-    case "High":
+  switch (priority.toLowerCase()) {
+    case "high":
       return "bg-red-500/20 text-red-400 border-red-500/30";
-    case "Medium":
+    case "medium":
       return "bg-[#ff6600]/20 text-[#ffae42] border-[#ff6600]/30";
-    case "Low":
+    case "low":
       return "bg-green-500/20 text-green-400 border-green-500/30";
     default:
       return "bg-gray-500/20 text-gray-400 border-gray-500/30";
   }
 };
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
+const formatDate = (date: Date) => {
   return date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -84,7 +50,21 @@ const formatDate = (dateString: string) => {
   });
 };
 
-export default function IssueDetails() {
+// Define the params type
+interface IssueDetailsParams {
+  params: {
+    id: string;
+  };
+}
+
+export default async function IssueDetails({ params }: IssueDetailsParams) {
+  const { id: issueId } = await params;
+  const issue = await getIssueById(issueId);
+  const comments = await getCommentsByIssueId(issueId);
+
+  if (!issue) {
+    notFound();
+  }
   return (
     <PageLayout className="max-w-4xl">
       <BackButton href="/dashboard" label="Back to Dashboard" />
@@ -94,31 +74,31 @@ export default function IssueDetails() {
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-4">
-              <span className="text-sm text-gray-400">
-                Issue #{mockIssue.id}
-              </span>
+              <span className="text-sm text-gray-400">Issue #{issue.id}</span>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusStyles(
-                  mockIssue.status
+                  issue.status
                 )}`}
               >
-                {mockIssue.status}
+                {issue.status.replace("_", " ")}
               </span>
               <span
                 className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityStyles(
-                  mockIssue.priority
+                  issue.priority
                 )}`}
               >
-                {mockIssue.priority} Priority
+                {issue.priority.charAt(0).toUpperCase() +
+                  issue.priority.slice(1)}{" "}
+                Priority
               </span>
             </div>
 
             <h1 className="text-3xl font-bold text-white mb-4 leading-tight">
-              {mockIssue.title}
+              {issue.title}
             </h1>
 
             <div className="flex flex-wrap gap-2 mb-6">
-              {mockIssue.labels.map((label, index) => (
+              {issue.labels.map((label, index) => (
                 <span
                   key={index}
                   className="px-3 py-1 rounded-full bg-[#ff6600]/10 text-[#ffae42] text-sm border border-[#ff6600]/20"
@@ -131,22 +111,20 @@ export default function IssueDetails() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-gray-400">Created by:</span>
-                <span className="text-white ml-2">{mockIssue.createdBy}</span>
-              </div>
-              <div>
-                <span className="text-gray-400">Assigned to:</span>
-                <span className="text-white ml-2">{mockIssue.assignedTo}</span>
+                <span className="text-white ml-2">
+                  User ID: {issue.createdBy}
+                </span>
               </div>
               <div>
                 <span className="text-gray-400">Created:</span>
                 <span className="text-white ml-2">
-                  {formatDate(mockIssue.createdAt)}
+                  {formatDate(issue.createdAt)}
                 </span>
               </div>
               <div>
                 <span className="text-gray-400">Updated:</span>
                 <span className="text-white ml-2">
-                  {formatDate(mockIssue.updatedAt)}
+                  {formatDate(issue.updatedAt)}
                 </span>
               </div>
             </div>
@@ -154,11 +132,14 @@ export default function IssueDetails() {
 
           {/* Action buttons */}
           <div className="flex flex-col gap-3 lg:min-w-[200px]">
-            <Link href={`/issues/${mockIssue.id}/edit`}>
+            <Link href={`/issues/${issue.id}/edit`}>
               <Button className="w-full">Edit Issue</Button>
             </Link>
-            <Button variant="secondary">Change Status</Button>
-            <Button variant="danger">Delete Issue</Button>
+            <ChangeStatusDialog
+              issueId={issue.id}
+              currentStatus={issue.status}
+            />
+            <DeleteIssueDialog issueId={issue.id} issueTitle={issue.title} />
           </div>
         </div>
       </div>
@@ -167,7 +148,7 @@ export default function IssueDetails() {
       <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 mb-6">
         <h2 className="text-xl font-semibold text-white mb-4">Description</h2>
         <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">
-          {mockIssue.description}
+          {issue.description || "No description provided."}
         </p>
       </div>
 
@@ -175,27 +156,40 @@ export default function IssueDetails() {
       <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-white">
-            Comments ({mockComments.length})
+            Comments ({comments.length})
           </h2>
-          <Button size="sm">Add Comment</Button>
         </div>
 
         {/* Comment form */}
-        <div className="mb-8 p-6 bg-white/5 rounded-xl border border-white/10">
+        <form
+          action={handleCreateComment}
+          className="mb-8 p-6 bg-white/5 rounded-xl border border-white/10"
+        >
+          <input type="hidden" name="issueId" value={issue.id} />
           <textarea
+            name="text"
             placeholder="Write a comment..."
             className="w-full h-24 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#ff6600] focus:border-transparent transition-all duration-200 resize-none"
+            required
           />
           <div className="flex justify-end mt-3">
-            <Button size="sm">Post Comment</Button>
+            <Button type="submit" size="sm">
+              Post Comment
+            </Button>
           </div>
-        </div>
+        </form>
 
         {/* Comments list */}
         <div className="space-y-6">
-          {mockComments.map((comment) => (
-            <Comment key={comment.id} comment={comment} />
-          ))}
+          {comments.length > 0 ? (
+            comments.map((comment) => (
+              <Comment key={comment.id} comment={comment} />
+            ))
+          ) : (
+            <p className="text-center text-gray-400 py-6">
+              No comments yet. Be the first to comment!
+            </p>
+          )}
         </div>
       </div>
     </PageLayout>

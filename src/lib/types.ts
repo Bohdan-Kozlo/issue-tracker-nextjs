@@ -3,4 +3,5 @@ export type ActionResponse = {
   message: string;
   errors?: Record<string, string[]>;
   error?: string;
+  data?: Record<string, unknown>;
 };

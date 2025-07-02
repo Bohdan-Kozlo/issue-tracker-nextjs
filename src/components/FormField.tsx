@@ -1,10 +1,11 @@
 import { ReactNode } from "react";
 
-interface FormFieldProps {
+export interface FormFieldProps {
   label: string;
   required?: boolean;
   children: ReactNode;
   hint?: string;
+  error?: string;
 }
 
 export default function FormField({
@@ -12,6 +13,7 @@ export default function FormField({
   required = false,
   children,
   hint,
+  error,
 }: FormFieldProps) {
   return (
     <div className="mb-6">
@@ -20,6 +22,9 @@ export default function FormField({
       </label>
       {children}
       {hint && <p className="text-sm text-gray-400 mt-1">{hint}</p>}
+      {error && (
+        <p className="text-sm text-red-400 mt-1 animate-fade-in">{error}</p>
+      )}
     </div>
   );
 }

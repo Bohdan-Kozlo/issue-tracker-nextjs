@@ -1,206 +1,277 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import PageLayout from "@/components/PageLayout";
 import BackButton from "@/components/BackButton";
 import GradientHeading from "@/components/GradientHeading";
 import FormField from "@/components/FormField";
 import { Input, Textarea, Select } from "@/components/Input";
 import Button from "@/components/Button";
+import { updateIssue, getIssueById } from "@/app/server-actions/issue";
+import { useActionState } from "react";
+import toast from "react-hot-toast";
+import { ActionResponse } from "@/lib/types";
 
-// Mock data for demonstration
-const mockIssue = {
-  id: 1,
-  title: "Fix navigation bug in mobile view",
-  description:
-    "The navigation menu doesn't work properly on mobile devices. When users tap the hamburger menu, it opens but clicking on menu items doesn't navigate to the correct pages. This issue affects user experience significantly on mobile platforms.",
-  status: "Open",
-  priority: "High",
-  assignedTo: "john-doe",
-  labels: ["bug", "mobile", "navigation"],
+interface IssueData {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  priority: string;
+  labels: string[] | string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const initialState: ActionResponse = {
+  success: false,
+  message: "",
+  errors: undefined,
 };
 
-const mockUsers = [
-  { id: "john-doe", name: "John Doe" },
-  { id: "jane-smith", name: "Jane Smith" },
-  { id: "mike-johnson", name: "Mike Johnson" },
-  { id: "sarah-wilson", name: "Sarah Wilson" },
-];
+export default function EditIssue({ params }: { params: { id: string } }) {
+  const router = useRouter();
+  const [issue, setIssue] = useState<IssueData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export default function IssueEdit() {
-  const [formData, setFormData] = useState({
-    title: mockIssue.title,
-    description: mockIssue.description,
-    status: mockIssue.status,
-    priority: mockIssue.priority,
-    assignedTo: mockIssue.assignedTo,
-    labels: mockIssue.labels.join(", "),
-  });
+  const [state, formAction, isPending] = useActionState<
+    ActionResponse,
+    FormData
+  >(async (prevState: ActionResponse, formData: FormData) => {
+    formData.append("id", params.id);
+    const response = await updateIssue(formData);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+    if (response.success) {
+      toast.success(response.message);
+      router.push(`/issues/${params.id}`);
+    } else {
+      toast.error(response.message);
+    }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
-  };
+    return response;
+  }, initialState);
+
+  useEffect(() => {
+    const loadIssue = async () => {
+      setLoading(true);
+      try {
+        const issueData = await getIssueById(params.id);
+        if (!issueData) {
+          toast.error("Issue not found");
+          router.push("/dashboard");
+          return;
+        }
+
+        setIssue({
+          id: issueData.id,
+          title: issueData.title,
+          description: issueData.description,
+          status: issueData.status,
+          priority: issueData.priority,
+          labels: issueData.labels,
+          createdBy: issueData.createdBy,
+          createdAt: issueData.createdAt,
+          updatedAt: issueData.updatedAt,
+        });
+      } catch (error) {
+        toast.error("Failed to load issue");
+        console.error("Error loading issue:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadIssue();
+  }, [params.id, router]);
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="flex flex-col items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+          <p className="mt-4 text-white">Loading issue...</p>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (!issue) {
+    return (
+      <PageLayout>
+        <div className="flex flex-col items-center justify-center h-64">
+          <p className="text-red-400 text-xl">Issue not found</p>
+          <Button
+            variant="primary"
+            onClick={() => router.push("/dashboard")}
+            className="mt-4"
+          >
+            Return to Dashboard
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout>
-      <BackButton
-        href={`/issues/${mockIssue.id}`}
-        label="Back to Issue Details"
-      />
+      <BackButton href={`/issues/${params.id}`} label="Back to Issue" />
 
       <GradientHeading
-        title={`Edit Issue #${mockIssue.id}`}
-        subtitle="Update issue details and settings"
+        title="Edit Issue"
+        subtitle="Update issue details and information"
       />
 
       {/* Edit Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form className="space-y-6" action={formAction}>
         {/* Main Information */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
           <h2 className="text-xl font-semibold text-white mb-6">
             Issue Information
           </h2>
 
-          <FormField label="Title" required>
+          <FormField label="Title" required error={state.errors?.title?.[0]}>
             <Input
               type="text"
               name="title"
-              value={formData.title}
-              onChange={handleInputChange}
               required
-              placeholder="Enter issue title"
+              defaultValue={issue.title}
+              placeholder="Brief description of the issue"
+              disabled={isPending}
             />
           </FormField>
 
-          <FormField label="Description" required>
+          <FormField
+            label="Description"
+            required
+            error={state.errors?.description?.[0]}
+          >
             <Textarea
               name="description"
-              value={formData.description}
-              onChange={handleInputChange}
               required
-              rows={6}
-              placeholder="Describe the issue in detail"
+              rows={8}
+              defaultValue={issue.description || ""}
+              placeholder="Provide a detailed description of the issue"
+              disabled={isPending}
             />
           </FormField>
 
-          <FormField label="Labels" hint="Separate multiple labels with commas">
+          <FormField
+            label="Labels"
+            hint="Add labels to help categorize this issue"
+            error={state.errors?.labels?.[0]}
+          >
             <Input
               type="text"
               name="labels"
-              value={formData.labels}
-              onChange={handleInputChange}
-              placeholder="Enter labels separated by commas (e.g., bug, mobile, navigation)"
+              defaultValue={
+                Array.isArray(issue.labels)
+                  ? issue.labels.join(", ")
+                  : issue.labels
+              }
+              placeholder="Enter labels separated by commas (e.g., bug, mobile, urgent)"
+              disabled={isPending}
             />
           </FormField>
         </div>
 
-        {/* Status and Priority */}
+        {/* Priority and Status */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
           <h2 className="text-xl font-semibold text-white mb-6">
-            Status & Priority
+            Priority & Status
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField label="Status" required>
+            <FormField
+              label="Status"
+              required
+              error={state.errors?.status?.[0]}
+            >
               <Select
                 name="status"
-                value={formData.status}
-                onChange={handleInputChange}
                 required
+                disabled={isPending}
+                defaultValue={issue.status}
               >
-                <option value="Open" className="bg-gray-800">
-                  Open
+                <option value="open" className="bg-gray-800">
+                  Open - Not yet started
                 </option>
-                <option value="In Progress" className="bg-gray-800">
-                  In Progress
+                <option value="in_progress" className="bg-gray-800">
+                  In Progress - Currently working on it
                 </option>
-                <option value="Closed" className="bg-gray-800">
-                  Closed
+                <option value="closed" className="bg-gray-800">
+                  Closed - Issue resolved
                 </option>
               </Select>
             </FormField>
 
-            <FormField label="Priority" required>
+            <FormField
+              label="Priority"
+              required
+              error={state.errors?.priority?.[0]}
+            >
               <Select
                 name="priority"
-                value={formData.priority}
-                onChange={handleInputChange}
                 required
+                disabled={isPending}
+                defaultValue={issue.priority}
               >
-                <option value="Low" className="bg-gray-800">
-                  Low
+                <option value="low" className="bg-gray-800">
+                  Low - Minor issues, nice to have
                 </option>
-                <option value="Medium" className="bg-gray-800">
-                  Medium
+                <option value="medium" className="bg-gray-800">
+                  Medium - Standard issues
                 </option>
-                <option value="High" className="bg-gray-800">
-                  High
+                <option value="high" className="bg-gray-800">
+                  High - Critical issues, needs attention
                 </option>
               </Select>
             </FormField>
           </div>
         </div>
 
-        {/* Assignment */}
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-          <h2 className="text-xl font-semibold text-white mb-6">Assignment</h2>
-
-          <FormField label="Assigned To">
-            <Select
-              name="assignedTo"
-              value={formData.assignedTo}
-              onChange={handleInputChange}
-            >
-              <option value="" className="bg-gray-800">
-                Unassigned
-              </option>
-              {mockUsers.map((user) => (
-                <option key={user.id} value={user.id} className="bg-gray-800">
-                  {user.name}
-                </option>
-              ))}
-            </Select>
-          </FormField>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-          <div className="flex flex-col sm:flex-row gap-4 justify-end">
-            <Link href={`/issues/${mockIssue.id}`}>
-              <Button variant="secondary" className="w-full sm:w-auto">
-                Cancel
-              </Button>
-            </Link>
-            <Button type="submit" size="lg">
-              Save Changes
-            </Button>
-          </div>
+        {/* Submit */}
+        <div className="flex justify-end mt-6 space-x-3">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => router.back()}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" variant="primary" disabled={isPending}>
+            {isPending ? (
+              <>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  ></path>
+                </svg>
+                Updating...
+              </>
+            ) : (
+              "Update Issue"
+            )}
+          </Button>
         </div>
       </form>
-
-      {/* Danger Zone */}
-      <div className="bg-red-500/5 backdrop-blur-sm border border-red-500/20 rounded-2xl p-8 mt-6">
-        <h2 className="text-xl font-semibold text-red-400 mb-4">Danger Zone</h2>
-        <p className="text-gray-400 mb-6">
-          Once you delete an issue, there is no going back. Please be certain.
-        </p>
-        <Button variant="danger">Delete Issue</Button>
-      </div>
     </PageLayout>
   );
 }

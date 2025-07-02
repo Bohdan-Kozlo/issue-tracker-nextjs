@@ -45,3 +45,5 @@ docs.md
 dev.db
 
 /prisma/migrations
+
+/docs
