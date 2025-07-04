@@ -1,21 +1,13 @@
 "use client";
 
-import { getCurrentUser } from "@/app/server-actions/auth";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useAuth } from "@/lib/auth-context";
 import LogoutButton from "./LogoutButton";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [user, setUser] = useState<{ name: string } | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const currentUser = await getCurrentUser();
-      if (currentUser) setUser({ name: currentUser.name });
-    };
-    fetchUser();
-  }, []);
+  const { user } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1a1a2e]/80 backdrop-blur-md border-b border-white/10">
@@ -164,20 +156,33 @@ export default function Navbar() {
               New Issue
             </Link>
             <div className="border-t border-white/20 pt-3 mt-3 space-y-1">
-              <Link
-                href="/login"
-                className="block px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign In
-              </Link>
-              <Link
-                href="/register"
-                className="block px-3 py-2 rounded-lg bg-gradient-to-r from-[#ff6600] to-[#ffae42] text-white font-medium transition-all duration-200"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign Up
-              </Link>
+              {user ? (
+                <>
+                  <div className="block px-3 py-2 rounded-lg text-gray-300 font-medium">
+                    {user.name}
+                  </div>
+                  <div onClick={() => setIsMenuOpen(false)}>
+                    <LogoutButton />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="block px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 font-medium"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="block px-3 py-2 rounded-lg bg-gradient-to-r from-[#ff6600] to-[#ffae42] text-white font-medium transition-all duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

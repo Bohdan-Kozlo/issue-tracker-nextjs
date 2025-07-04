@@ -1,20 +1,7 @@
-interface CommentData {
-  id: string;
-  text: string;
-  issueId: string;
-  authorId: string;
-  createdAt: Date;
-  updatedAt: Date;
-  author: {
-    id: string;
-    name: string;
-    email: string;
-    picture?: string | null;
-  };
-}
+import { CommentWithAuthor } from "@/lib/schemas/comment";
 
 interface CommentProps {
-  comment: CommentData;
+  comment: CommentWithAuthor;
 }
 
 const formatDate = (date: Date) => {
@@ -36,6 +23,8 @@ const getInitials = (name: string) => {
     .substring(0, 2);
 };
 
+import Image from "next/image";
+
 export default function Comment({ comment }: CommentProps) {
   const initials = getInitials(comment.author.name);
 
@@ -43,9 +32,11 @@ export default function Comment({ comment }: CommentProps) {
     <div className="flex gap-4">
       <div className="w-10 h-10 overflow-hidden rounded-full">
         {comment.author.picture ? (
-          <img
+          <Image
             src={comment.author.picture}
             alt={comment.author.name}
+            width={40}
+            height={40}
             className="w-full h-full object-cover"
           />
         ) : (

@@ -3,15 +3,20 @@
 import { logout } from "@/app/server-actions/auth";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { useAuth } from "@/lib/auth-context";
 
 export default function LogoutButton() {
   const router = useRouter();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isPending, startTransition] = useTransition();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { setUser, refreshUser } = useAuth();
 
   const handleLogout = async () => {
     startTransition(async () => {
       await logout();
+      // Оновлюємо стан авторизації після виходу
+      setUser(null);
     });
     router.push("/login");
   };

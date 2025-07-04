@@ -35,7 +35,7 @@ export const CommentWithAuthorSchema = CommentSchema.extend({
     id: z.string().uuid(),
     name: z.string(),
     email: z.string().email(),
-    picture: z.string().optional(),
+    picture: z.string().optional().nullable(),
   }),
 });
 

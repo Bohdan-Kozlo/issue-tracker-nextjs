@@ -8,6 +8,7 @@ import { ActionResponse } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
 import { login } from "@/app/server-actions/auth";
+import { useAuth } from "@/lib/auth-context";
 import toast from "react-hot-toast";
 
 const initialState: ActionResponse = {
@@ -18,6 +19,7 @@ const initialState: ActionResponse = {
 
 export default function LoginPage() {
   const router = useRouter();
+  const { refreshUser } = useAuth();
 
   const [state, formAction, isPending] = useActionState<
     ActionResponse,
@@ -27,6 +29,7 @@ export default function LoginPage() {
 
     if (response.success) {
       toast.success(response.message);
+      await refreshUser();
       router.push("/dashboard");
     } else {
       toast.error(response.message);

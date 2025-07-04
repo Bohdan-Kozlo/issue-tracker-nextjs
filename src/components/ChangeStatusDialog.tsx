@@ -18,8 +18,17 @@ export default function ChangeStatusDialog({
   const [error, setError] = useState("");
   const [selectedStatus, setSelectedStatus] = useState(currentStatus);
 
-  const openDialog = () => setIsOpen(true);
-  const closeDialog = () => setIsOpen(false);
+  const openDialog = () => {
+    setSelectedStatus(currentStatus);
+    setError("");
+    setIsSubmitting(false);
+    setIsOpen(true);
+  };
+
+  const closeDialog = () => {
+    setIsOpen(false);
+    setIsSubmitting(false);
+  };
 
   const statusOptions = [
     { value: "open", label: "Open" },
@@ -34,6 +43,7 @@ export default function ChangeStatusDialog({
     try {
       const result = await handleChangeStatus(formData);
       if (result.success) {
+        setIsSubmitting(false);
         closeDialog();
       } else {
         setError(result.error || result.message || "Failed to change status");

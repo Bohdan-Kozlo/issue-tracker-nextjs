@@ -5,7 +5,6 @@ import { OAuth2Client } from "google-auth-library";
 import { createSession, createUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Set up OAuth client with your Google credentials
 const oAuth2Client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,

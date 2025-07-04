@@ -1,16 +1,29 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import PageLayout from "@/components/PageLayout";
 import BackButton from "@/components/BackButton";
 import GradientHeading from "@/components/GradientHeading";
 import FormField from "@/components/FormField";
 import { Input, Textarea, Select } from "@/components/Input";
 import Button from "@/components/Button";
-import { createIssue } from "@/app/server-actions/issue-actions";
+import { updateIssue } from "@/app/server-actions/issue-actions";
 import { useActionState } from "react";
 import toast from "react-hot-toast";
 import { ActionResponse } from "@/lib/types";
+
+interface IssueData {
+  id: string;
+  title: string;
+  description: string | null;
+  status: string;
+  priority: string;
+  labels: string[] | string;
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 const initialState: ActionResponse = {
   success: false,
@@ -18,21 +31,21 @@ const initialState: ActionResponse = {
   errors: undefined,
 };
 
-export default function NewIssue() {
+export default function EditIssueForm({ issueId }: { issueId: string }) {
   const router = useRouter();
+  const [issue, setIssue] = useState<IssueData | null>(null);
+  const [loading, setLoading] = useState(true);
+
   const [state, formAction, isPending] = useActionState<
     ActionResponse,
     FormData
   >(async (prevState: ActionResponse, formData: FormData) => {
-    const response = await createIssue(formData);
+    formData.append("id", issueId);
+    const response = await updateIssue(formData);
 
     if (response.success) {
       toast.success(response.message);
-      if (response.data?.id) {
-        router.push(`/issues/${response.data.id}`);
-      } else {
-        router.push("/dashboard");
-      }
+      router.push(`/issues/${issueId}`);
     } else {
       toast.error(response.message);
     }
@@ -40,16 +53,85 @@ export default function NewIssue() {
     return response;
   }, initialState);
 
+  useEffect(() => {
+    const loadIssue = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/issues/${issueId}`);
+
+        if (!response.ok) {
+          toast.error("Failed to fetch issue");
+          router.push("/dashboard");
+          return;
+        }
+
+        const issueData = await response.json();
+        if (!issueData) {
+          toast.error("Issue not found");
+          router.push("/dashboard");
+          return;
+        }
+
+        setIssue({
+          id: issueData.id,
+          title: issueData.title,
+          description: issueData.description,
+          status: issueData.status,
+          priority: issueData.priority,
+          labels: issueData.labels,
+          createdBy: issueData.createdBy,
+          createdAt: issueData.createdAt,
+          updatedAt: issueData.updatedAt,
+        });
+      } catch (error) {
+        toast.error("Failed to load issue");
+        console.error("Error loading issue:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadIssue();
+  }, [issueId, router]);
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="flex flex-col items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-white"></div>
+          <p className="mt-4 text-white">Loading issue...</p>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (!issue) {
+    return (
+      <PageLayout>
+        <div className="flex flex-col items-center justify-center h-64">
+          <p className="text-red-400 text-xl">Issue not found</p>
+          <Button
+            variant="primary"
+            onClick={() => router.push("/dashboard")}
+            className="mt-4"
+          >
+            Return to Dashboard
+          </Button>
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout>
-      <BackButton href="/dashboard" label="Back to Dashboard" />
+      <BackButton href={`/issues/${issueId}`} label="Back to Issue" />
 
       <GradientHeading
-        title="Create New Issue"
-        subtitle="Report a bug, request a feature, or start a discussion"
+        title="Edit Issue"
+        subtitle="Update issue details and information"
       />
 
-      {/* Create Form */}
+      {/* Edit Form */}
       <form className="space-y-6" action={formAction}>
         {/* Main Information */}
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
@@ -62,6 +144,7 @@ export default function NewIssue() {
               type="text"
               name="title"
               required
+              defaultValue={issue.title}
               placeholder="Brief description of the issue"
               disabled={isPending}
             />
@@ -76,7 +159,8 @@ export default function NewIssue() {
               name="description"
               required
               rows={8}
-              placeholder="Provide a detailed description of the issue. Include steps to reproduce, expected behavior, and actual behavior."
+              defaultValue={issue.description || ""}
+              placeholder="Provide a detailed description of the issue"
               disabled={isPending}
             />
           </FormField>
@@ -89,6 +173,11 @@ export default function NewIssue() {
             <Input
               type="text"
               name="labels"
+              defaultValue={
+                Array.isArray(issue.labels)
+                  ? issue.labels.join(", ")
+                  : issue.labels
+              }
               placeholder="Enter labels separated by commas (e.g., bug, mobile, urgent)"
               disabled={isPending}
             />
@@ -107,7 +196,12 @@ export default function NewIssue() {
               required
               error={state.errors?.status?.[0]}
             >
-              <Select name="status" required disabled={isPending}>
+              <Select
+                name="status"
+                required
+                disabled={isPending}
+                defaultValue={issue.status}
+              >
                 <option value="open" className="bg-gray-800">
                   Open - Not yet started
                 </option>
@@ -129,7 +223,7 @@ export default function NewIssue() {
                 name="priority"
                 required
                 disabled={isPending}
-                defaultValue="medium"
+                defaultValue={issue.priority}
               >
                 <option value="low" className="bg-gray-800">
                   Low - Minor issues, nice to have
@@ -178,10 +272,10 @@ export default function NewIssue() {
                     d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
                   ></path>
                 </svg>
-                Creating...
+                Updating...
               </>
             ) : (
-              "Create Issue"
+              "Update Issue"
             )}
           </Button>
         </div>

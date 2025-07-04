@@ -17,8 +17,16 @@ export default function DeleteIssueDialog({
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState("");
 
-  const openDialog = () => setIsOpen(true);
-  const closeDialog = () => setIsOpen(false);
+  const openDialog = () => {
+    setError("");
+    setIsDeleting(false);
+    setIsOpen(true);
+  };
+
+  const closeDialog = () => {
+    setIsOpen(false);
+    setIsDeleting(false);
+  };
 
   const handleDelete = async (formData: FormData) => {
     setIsDeleting(true);

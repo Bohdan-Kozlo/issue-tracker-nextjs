@@ -5,8 +5,8 @@ import Comment from "@/components/Comment";
 import Button from "@/components/Button";
 import DeleteIssueDialog from "@/components/DeleteIssueDialog";
 import ChangeStatusDialog from "@/components/ChangeStatusDialog";
-import { getIssueById } from "@/app/server-actions/issue";
-import { getCommentsByIssueId } from "@/app/server-actions/comment";
+import { getIssueById } from "@/app/server-actions/issue-actions";
+import { getCommentsByIssueId } from "@/app/server-actions/comment-actions";
 import { handleCreateComment } from "@/app/server-actions/comment-actions";
 import { notFound } from "next/navigation";
 
@@ -50,15 +50,13 @@ const formatDate = (date: Date) => {
   });
 };
 
-// Define the params type
-interface IssueDetailsParams {
-  params: {
-    id: string;
-  };
-}
+type IssueDetailsParams = Promise<{ id: string }>;
 
-export default async function IssueDetails({ params }: IssueDetailsParams) {
-  const { id: issueId } = await params;
+export default async function IssueDetails(props: {
+  params: IssueDetailsParams;
+}) {
+  const resolvedParams = await props.params;
+  const issueId = resolvedParams.id;
   const issue = await getIssueById(issueId);
   const comments = await getCommentsByIssueId(issueId);
 

@@ -7,12 +7,13 @@ interface IssueCardProps {
 
 // Helper function to get status badge styles
 const getStatusStyles = (status: string) => {
-  switch (status) {
-    case "Open":
+  switch (status.toLowerCase()) {
+    case "open":
       return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-    case "In Progress":
+    case "in_progress":
+    case "in progress":
       return "bg-[#ff6600]/20 text-[#ffae42] border-[#ff6600]/30";
-    case "Closed":
+    case "closed":
       return "bg-green-500/20 text-green-400 border-green-500/30";
     default:
       return "bg-gray-500/20 text-gray-400 border-gray-500/30";
@@ -21,12 +22,12 @@ const getStatusStyles = (status: string) => {
 
 // Helper function to get priority styles
 const getPriorityStyles = (priority: string) => {
-  switch (priority) {
-    case "High":
+  switch (priority.toLowerCase()) {
+    case "high":
       return "text-red-400";
-    case "Medium":
+    case "medium":
       return "text-[#ffae42]";
-    case "Low":
+    case "low":
       return "text-green-400";
     default:
       return "text-gray-400";
@@ -35,12 +36,12 @@ const getPriorityStyles = (priority: string) => {
 
 // Helper function to get priority icon
 const getPriorityIcon = (priority: string) => {
-  switch (priority) {
-    case "High":
+  switch (priority.toLowerCase()) {
+    case "high":
       return "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z";
-    case "Medium":
+    case "medium":
       return "M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z";
-    case "Low":
+    case "low":
       return "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z";
     default:
       return "M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z";

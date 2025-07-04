@@ -14,7 +14,6 @@ export default function GoogleCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Extract the code and state from the URL
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get("code");
         const state = urlParams.get("state");
@@ -28,7 +27,6 @@ export default function GoogleCallbackPage() {
           return;
         }
 
-        // Clean up state from localStorage
         localStorage.removeItem("googleAuthState");
 
         if (!code) {
@@ -39,7 +37,6 @@ export default function GoogleCallbackPage() {
           return;
         }
 
-        // Send code to backend to complete authentication
         const response = await fetch("/api/auth/google", {
           method: "POST",
           headers: {
@@ -58,7 +55,6 @@ export default function GoogleCallbackPage() {
           return;
         }
 
-        // Authentication successful
         setStatus("success");
         toast.success("Authentication successful!");
         setTimeout(() => router.push("/dashboard"), 1000);
