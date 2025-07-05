@@ -10,7 +10,6 @@ export default function Loading() {
           style={{ animationDelay: "1s" }}
         />
       </div>
-
       {/* Loading content */}
       <div className="relative z-10 text-center">
         {/* Animated logo/icon */}
@@ -73,7 +72,6 @@ export default function Loading() {
         </div>
       </div>
 
-      {/* Floating elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Floating geometric shapes */}
         <div
