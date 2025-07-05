@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Button from "./Button";
-import { handleChangeStatus } from "@/app/server-actions/issue-actions";
+import { handleChangeStatus } from "@/lib/server-actions/issue-actions";
 
 interface ChangeStatusDialogProps {
   issueId: string;

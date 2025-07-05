@@ -7,7 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { getCurrentUser } from "@/app/server-actions/auth";
+import { getCurrentUser } from "@/lib/server-actions/auth";
 
 interface User {
   id: string;

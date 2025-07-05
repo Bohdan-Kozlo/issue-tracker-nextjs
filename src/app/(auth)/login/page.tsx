@@ -7,7 +7,7 @@ import GoogleReg from "@/components/GoogleReg";
 import { ActionResponse } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useActionState } from "react";
-import { login } from "@/app/server-actions/auth";
+import { login } from "@/lib/server-actions/auth";
 import { useAuth } from "@/lib/auth-context";
 import toast from "react-hot-toast";
 

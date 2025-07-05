@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getIssueById } from "@/app/server-actions/issue-actions";
+import { getIssueById } from "@/lib/server-actions/issue-actions";
 
 export async function GET(
   request: Request,
