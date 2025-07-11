@@ -3,7 +3,7 @@ import PageLayout from "@/components/PageLayout";
 import GradientHeading from "@/components/GradientHeading";
 import StatusFilterButtons from "@/components/StatusFilterButtons";
 import IssueCard from "@/components/IssueCard";
-import { getIssues } from "@/data/issue";
+import { getIssues } from "@/server-actions/issue-actions";
 
 export default async function Dashboard() {
   const issues = await getIssues();

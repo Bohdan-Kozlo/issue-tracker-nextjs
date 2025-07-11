@@ -6,8 +6,7 @@ import GoogleReg from "@/components/GoogleReg";
 import AuthLayout from "@/components/AuthLayout";
 import { ActionResponse } from "@/lib/types";
 import { useActionState } from "react";
-import { register } from "@/lib/server-actions/auth";
-import { useAuth } from "@/lib/auth-context";
+import { register } from "@/server-actions/auth";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 
@@ -19,7 +18,6 @@ const initialState: ActionResponse = {
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { refreshUser } = useAuth();
 
   const [state, formAction, isPending] = useActionState<
     ActionResponse,
@@ -29,7 +27,6 @@ export default function RegisterPage() {
 
     if (response.success) {
       toast.success(response.message);
-      await refreshUser();
       router.push("/dashboard");
     } else {
       toast.error(response.message);

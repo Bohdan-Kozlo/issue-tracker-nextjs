@@ -1,10 +1,8 @@
-import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden bg-gradient-to-br from-slate-900 via-gray-900 to-black">
-      <Navbar />
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Primary gradient overlay */}

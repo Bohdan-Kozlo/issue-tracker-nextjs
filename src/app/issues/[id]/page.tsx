@@ -5,9 +5,9 @@ import Comment from "@/components/Comment";
 import Button from "@/components/Button";
 import DeleteIssueDialog from "@/components/DeleteIssueDialog";
 import ChangeStatusDialog from "@/components/ChangeStatusDialog";
-import { getIssueById } from "@/lib/server-actions/issue-actions";
-import { getCommentsByIssueId } from "@/lib/server-actions/comment-actions";
-import { handleCreateComment } from "@/lib/server-actions/comment-actions";
+import { getIssueById } from "@/server-actions/issue-actions";
+import { getCommentsByIssueId } from "@/server-actions/comment-actions";
+import { handleCreateComment } from "@/server-actions/comment-actions";
 import { notFound } from "next/navigation";
 
 // Helper functions

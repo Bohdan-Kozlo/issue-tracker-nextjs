@@ -1,3 +1,5 @@
+import { textGradient } from "@/lib/styles";
+
 interface GradientHeadingProps {
   title: string;
   subtitle?: string;
@@ -11,9 +13,7 @@ export default function GradientHeading({
 }: GradientHeadingProps) {
   return (
     <div className={`mb-8 ${className}`}>
-      <h1 className="text-4xl font-bold bg-gradient-to-r from-[#ff6600] to-[#ffae42] bg-clip-text text-transparent mb-2">
-        {title}
-      </h1>
+      <h1 className={`text-4xl font-bold mb-2 ${textGradient}`}>{title}</h1>
       {subtitle && <p className="text-gray-400 text-lg">{subtitle}</p>}
     </div>
   );

@@ -11,6 +11,7 @@ import {
   getSession,
 } from "@/lib/auth";
 import { getUserById } from "@/data/user";
+import { revalidatePath } from "next/cache";
 
 export async function register(formData: FormData): Promise<ActionResponse> {
   try {
@@ -33,6 +34,7 @@ export async function register(formData: FormData): Promise<ActionResponse> {
       };
     }
     await createSession(user.id);
+    revalidatePath("/", "layout");
     return {
       success: true,
       message: "Registration successful",
@@ -82,6 +84,8 @@ export async function login(formData: FormData): Promise<ActionResponse> {
     }
 
     await createSession(user.id);
+    revalidatePath("/", "layout");
+
     return {
       success: true,
       message: "Login successful",
@@ -97,7 +101,12 @@ export async function login(formData: FormData): Promise<ActionResponse> {
 }
 
 export async function logout(): Promise<void> {
-  await deleteSession();
+  try {
+    await deleteSession();
+    revalidatePath("/", "layout");
+  } catch (error) {
+    console.error("Logout error:", error);
+  }
 }
 
 export async function getCurrentUser() {

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Button from "./Button";
-import { handleDeleteIssue } from "@/lib/server-actions/issue-actions";
+import { handleDeleteIssue } from "@/server-actions/issue-actions";
 
 interface DeleteIssueDialogProps {
   issueId: string;

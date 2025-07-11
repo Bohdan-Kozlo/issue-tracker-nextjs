@@ -1,38 +1,10 @@
-import { Issue } from "@prisma/client";
 import Link from "next/link";
+import { getStatusStyles, getPriorityStyles } from "@/lib/styles";
+import { TransformedIssue } from "@/lib/types";
 
 interface IssueCardProps {
-  issue: Issue;
+  issue: TransformedIssue;
 }
-
-// Helper function to get status badge styles
-const getStatusStyles = (status: string) => {
-  switch (status.toLowerCase()) {
-    case "open":
-      return "bg-blue-500/20 text-blue-400 border-blue-500/30";
-    case "in_progress":
-    case "in progress":
-      return "bg-[#ff6600]/20 text-[#ffae42] border-[#ff6600]/30";
-    case "closed":
-      return "bg-green-500/20 text-green-400 border-green-500/30";
-    default:
-      return "bg-gray-500/20 text-gray-400 border-gray-500/30";
-  }
-};
-
-// Helper function to get priority styles
-const getPriorityStyles = (priority: string) => {
-  switch (priority.toLowerCase()) {
-    case "high":
-      return "text-red-400";
-    case "medium":
-      return "text-[#ffae42]";
-    case "low":
-      return "text-green-400";
-    default:
-      return "text-gray-400";
-  }
-};
 
 // Helper function to get priority icon
 const getPriorityIcon = (priority: string) => {
@@ -91,7 +63,7 @@ export default function IssueCard({ issue }: IssueCardProps) {
 
       {/* Created date and comments */}
       <div className="flex items-center justify-between text-sm text-gray-400 mb-6">
-        {/* <span>Created {issue.createdAt}</span> */}
+        <span>Created {new Date(issue.createdAt).toLocaleDateString()}</span>
         <div className="flex items-center gap-1">
           <svg
             className="w-4 h-4"

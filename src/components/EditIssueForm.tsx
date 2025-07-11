@@ -8,7 +8,7 @@ import GradientHeading from "@/components/GradientHeading";
 import FormField from "@/components/FormField";
 import { Input, Textarea, Select } from "@/components/Input";
 import Button from "@/components/Button";
-import { updateIssue } from "@/lib/server-actions/issue-actions";
+import { updateIssue } from "@/server-actions/issue-actions";
 import { useActionState } from "react";
 import toast from "react-hot-toast";
 import { ActionResponse } from "@/lib/types";

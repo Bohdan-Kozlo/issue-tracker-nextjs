@@ -1,4 +1,5 @@
 import { ButtonHTMLAttributes, ReactNode } from "react";
+import { buttonStyles } from "@/lib/styles";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger";
@@ -13,11 +14,10 @@ export default function Button({
   children,
   ...props
 }: ButtonProps) {
-  const baseClasses = "font-medium transition-all duration-200 rounded-xl";
+  const baseClasses = "transition-all duration-200 rounded-xl";
 
   const variantClasses = {
-    primary:
-      "bg-gradient-to-r from-[#ff6600] to-[#ffae42] hover:from-[#ffae42] hover:to-[#ff6600] text-white transform hover:scale-105",
+    primary: `${buttonStyles.primary} ${buttonStyles.primaryDisabled}`,
     secondary:
       "bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white border border-white/20",
     danger:
